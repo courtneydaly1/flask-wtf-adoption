@@ -8,13 +8,13 @@ from forms import AddPetForm, EditPetForm
 app= Flask(__name__)
 
 app.config['SECRET_KEY']= 'shhhSecret!'
-app.config["SQLALCHEMY_DATABASE_URL"]= "postgresql:///pet_adoption"
+app.config["SQLALCHEMY_DATABASE_URI"]= "postgresql:///pet_adoption"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]= False
 
 connect_db(app)
 db.create_all()
 
-toolbar=DebugToolbarExxtension(app)
+toolbar=DebugToolbarExtension(app)
 
 
 """Routes"""
@@ -28,6 +28,7 @@ def list_of_pets():
 
 @app.route("/add", methods=["GET", "POST"])
 def add_pet():
+    """Add a pet"""
     
     form = AddPetForm()
     
@@ -38,12 +39,38 @@ def add_pet():
         db.session.commit()
         
         flash(f"{new_pet.name} has been added!")
-        return redirect(url_for('list_pets'))  
+        return redirect(url_for('list__of_pets'))  
     else:
         return render_template("add_pet_form.html", form=form)  
     
-    @app.route('/<int:pet_id>', methods=["GET", "POST"])
-    def edit_pet(pet_id):
+@app.route('/<int:pet_id>', methods=["GET", "POST"])
+def edit_pet(pet_id):
+    """edit an existing pet"""
+    
+    pet= Pet.query.get_or_404(pet_id)
+    form = EditPetForm(obj=pet)
+    
+    if form.validate_on_submit():
+        pet.notes= form.notes.data
+        pet.photo_url=form.photo_url.data
+        pet.available=form.available.data
+        db.session.commit()
+        
+        flash (f"{pet.name} has been updated!")
+        
+    else:
+        return render_template('edit_pet_form.html', form=form, pet=pet)
+    
+@app.route('/api/pets/<int:pet_id>', methods=['POST'])
+def get_pet_api(pet_id):
+    """get info on oet through JSON"""
+    
+    pet=Pet.query.get_or_404(pet_id)
+    info= {'name':pet.name, "age":pet.age}
+    
+    return jsonify(info)
+        
                 
+        
         
 
