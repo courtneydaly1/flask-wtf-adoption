@@ -6,7 +6,7 @@ class AddPetForm(FlaskForm):
     """Form to add pets"""
     
     name= StringField('Pet Name', validators=[InputRequired()])
-    species=StringField('Species', choices=[
+    species=SelectField('Species', choices=[
         ('dog', 'Dog'),
         ('cat','Cat'),
         ('rabbit', 'Rabbit'),

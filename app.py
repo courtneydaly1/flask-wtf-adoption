@@ -11,6 +11,7 @@ app.config['SECRET_KEY']= 'shhhSecret!'
 app.config["SQLALCHEMY_DATABASE_URI"]= "postgresql:///pet_adoption"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]= False
 
+app.app_context().push()
 connect_db(app)
 db.create_all()
 
@@ -39,7 +40,7 @@ def add_pet():
         db.session.commit()
         
         flash(f"{new_pet.name} has been added!")
-        return redirect(url_for('list__of_pets'))  
+        return redirect(url_for('list_of_pets'))  
     else:
         return render_template("add_pet_form.html", form=form)  
     
@@ -57,6 +58,7 @@ def edit_pet(pet_id):
         db.session.commit()
         
         flash (f"{pet.name} has been updated!")
+        return redirect(url_for('list_of_pets')) 
         
     else:
         return render_template('edit_pet_form.html', form=form, pet=pet)
